@@ -8,6 +8,23 @@ using Object = UnityEngine.Object;
 
 namespace LethalProgression
 {
+    {
+		[HarmonyPrefix]
+		[HarmonyPatch(typeof(StartOfRound), "ResetShip")]
+		public static void storePXP(StartOfRound __instance, out double storedPXP)
+		{
+            InternalClass LCXP = new LC_XP();
+			storedPXP = LCXP.xpPersistent.Value;
+		}
+
+		[HarmonyPostfix]
+		[HarmonyPatch(typeof(StartOfRound), "ResetShip")]
+		public static void loadUnlocked(StartOfRound __instance, storedPXP)
+		{
+            int convertPXP = (int)storedPXP;
+            InternalClass LCXP = new LC_XP();
+		    LCXP.AddXPServerRPCStart(convertPXP);
+		}
     [HarmonyPatch]
     internal class LP_NetworkManager
     {
