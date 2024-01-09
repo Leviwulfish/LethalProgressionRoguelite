@@ -202,6 +202,42 @@ namespace LethalProgression
             }
         }
 
+                [ServerRpc(RequireOwnership = false)]
+        public void AddXPServerRPCStart(int xp)
+        {
+            int oldXP = GetXP();
+
+            // Update XP values
+            xpPoints.Value += xp;
+            profit.Value += xp;
+            xpPersistent.Value += xp
+
+            int newXP = GetXP();
+
+            XPHUDUpdate_ClientRPC(oldXP, newXP, xp);
+
+            // If we have enough XP to level up.
+            if (newXP >= xpReq.Value)
+            {
+                // How many times do we level up?
+                int levelUps = 0;
+
+                while (newXP >= xpReq.Value)
+                {
+                    levelUps++;
+                    newXP -= xpReq.Value;
+                    Givepoint_ClientRPC();
+                }
+
+                // Update XP values
+                xpPoints.Value = newXP;
+                xpLevel.Value += levelUps;
+
+
+                LevelUp_ClientRPC();
+            }
+        }
+
         [ClientRpc]
         public void XPHUDUpdate_ClientRPC(int oldXP, int newXP, int xpGained)
         {
