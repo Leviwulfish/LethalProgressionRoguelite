@@ -23,6 +23,7 @@ namespace LethalProgression
 {
     internal class LC_XP : NetworkBehaviour
     {
+        public NetworkVariable<double> xpPersistent = new NetworkVariable<double>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         public NetworkVariable<int> xpPoints = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         public NetworkVariable<int> xpLevel = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         public NetworkVariable<int> profit = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -53,6 +54,7 @@ namespace LethalProgression
             LethalPlugin.Log.LogInfo("Loading XP!");
             xpLevel.Value = sharedData.level;
             xpPoints.Value = sharedData.xp;
+            xpPersistent.Value = sharedData.persistent;
             profit.Value = sharedData.quota;
             xpReq.Value = GetXPRequirement();
 
@@ -170,6 +172,7 @@ namespace LethalProgression
             int oldXP = GetXP();
 
             // Update XP values
+            xpPersistent.Value += xp/10;
             xpPoints.Value += xp;
             profit.Value += xp;
 
@@ -380,7 +383,7 @@ namespace LethalProgression
         public void SaveData_ServerRpc(ulong steamID, string saveData)
         {
             SaveManager.Save(steamID, saveData);
-            SaveManager.SaveShared(xpPoints.Value, xpLevel.Value, profit.Value);
+            SaveManager.SaveShared(xpPoints.Value, xpLevel.Value, profit.Value, xpPersistent.Value);
         }
 
         // Loading
